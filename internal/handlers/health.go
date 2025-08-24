@@ -45,6 +45,13 @@ func NewHealthHandler(pgDB *pgxpool.Pool, mongoDB *mongo.Database, redis redis.C
 	}
 }
 
+// RegisterRoutes registers health check routes
+func (h *HealthHandler) RegisterRoutes(router fiber.Router) {
+	router.Get("/health", h.HealthCheck)
+	router.Get("/ready", h.ReadinessCheck)
+	router.Get("/live", h.LivenessCheck)
+}
+
 // HealthCheck handles basic health check
 // @Summary Health check
 // @Description Check if the service is healthy
@@ -252,11 +259,4 @@ func (h *HealthHandler) LivenessCheck(c *fiber.Ctx) error {
 		"timestamp": time.Now(),
 		"version":   "1.0.0",
 	})
-}
-
-// RegisterRoutes registers health check routes
-func (h *HealthHandler) RegisterRoutes(router fiber.Router) {
-	router.Get("/health", h.HealthCheck)
-	router.Get("/ready", h.ReadinessCheck)
-	router.Get("/live", h.LivenessCheck)
 }

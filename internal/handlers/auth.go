@@ -26,6 +26,21 @@ func NewAuthHandler(authService *services.AuthService, validator *validator.Vali
 	}
 }
 
+// RegisterRoutes registers authentication routes
+func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler) {
+	auth := router.Group("/auth")
+
+	// Public routes
+	auth.Post("/register", h.Register)
+	auth.Post("/login", h.Login)
+	auth.Post("/login/email", h.LoginByEmail)
+	auth.Post("/refresh", h.RefreshToken)
+	auth.Post("/logout", h.Logout)
+
+	// Protected routes
+	auth.Get("/me", authMiddleware, h.Me)
+}
+
 // Register handles user registration
 // @Summary Register a new user
 // @Description Create a new user account
@@ -307,19 +322,4 @@ func (h *AuthHandler) Me(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(response)
-}
-
-// RegisterRoutes registers authentication routes
-func (h *AuthHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler) {
-	auth := router.Group("/auth")
-
-	// Public routes
-	auth.Post("/register", h.Register)
-	auth.Post("/login", h.Login)
-	auth.Post("/login/email", h.LoginByEmail)
-	auth.Post("/refresh", h.RefreshToken)
-	auth.Post("/logout", h.Logout)
-
-	// Protected routes
-	auth.Get("/me", authMiddleware, h.Me)
 }

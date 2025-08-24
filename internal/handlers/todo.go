@@ -28,6 +28,26 @@ func NewTodoHandler(todoRepo interfaces.TodoRepository, validator *validator.Val
 	}
 }
 
+// RegisterRoutes registers todo routes
+func (h *TodoHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler) {
+	todos := router.Group("/todos", authMiddleware)
+
+	// CRUD operations
+	todos.Post("/", h.CreateTodo)
+	todos.Get("/", h.GetTodos)
+	todos.Get("/:id", h.GetTodo)
+	todos.Put("/:id", h.UpdateTodo)
+	todos.Delete("/:id", h.DeleteTodo)
+
+	// Status operations
+	todos.Patch("/:id/status", h.UpdateTodoStatus)
+
+	// Special operations
+	todos.Get("/overdue", h.GetOverdueTodos)
+	todos.Get("/search", h.SearchTodos)
+	todos.Get("/stats", h.GetTodoStats)
+}
+
 // CreateTodo handles todo creation
 // @Summary Create a new todo
 // @Description Create a new todo item for the authenticated user
@@ -649,24 +669,4 @@ func (h *TodoHandler) GetTodoStats(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"stats": stats,
 	})
-}
-
-// RegisterRoutes registers todo routes
-func (h *TodoHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.Handler) {
-	todos := router.Group("/todos", authMiddleware)
-
-	// CRUD operations
-	todos.Post("/", h.CreateTodo)
-	todos.Get("/", h.GetTodos)
-	todos.Get("/:id", h.GetTodo)
-	todos.Put("/:id", h.UpdateTodo)
-	todos.Delete("/:id", h.DeleteTodo)
-
-	// Status operations
-	todos.Patch("/:id/status", h.UpdateTodoStatus)
-
-	// Special operations
-	todos.Get("/overdue", h.GetOverdueTodos)
-	todos.Get("/search", h.SearchTodos)
-	todos.Get("/stats", h.GetTodoStats)
 }
