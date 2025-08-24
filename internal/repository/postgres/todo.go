@@ -61,12 +61,12 @@ func (r *todoRepository) Create(ctx context.Context, todo *models.Todo) (*models
 		DueDate:     dueDate,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", todo.UserID).Str("title", todo.Title).Msg("Failed to create todo")
+		r.logger.Error().Err(err).Str("user_id", todo.UserID).Str("title", todo.Title).Msg("Failed to create todo.")
 		return nil, fmt.Errorf("failed to create todo: %w", err)
 	}
 
 	result := r.mapDBTodoToModel(dbTodo)
-	r.logger.Info().Str("todo_id", result.ID).Str("user_id", result.UserID).Msg("Todo created successfully")
+	r.logger.Info().Str("todo_id", result.ID).Str("user_id", result.UserID).Msg("Todo created successfully.")
 	return result, nil
 }
 
@@ -74,7 +74,7 @@ func (r *todoRepository) Create(ctx context.Context, todo *models.Todo) (*models
 func (r *todoRepository) GetByID(ctx context.Context, id string) (*models.Todo, error) {
 	dbTodo, err := r.queries.GetTodoByID(ctx, id)
 	if err != nil {
-		r.logger.Error().Err(err).Str("todo_id", id).Msg("Failed to get todo by ID")
+		r.logger.Error().Err(err).Str("todo_id", id).Msg("Failed to get todo by ID.")
 		return nil, fmt.Errorf("failed to get todo: %w", err)
 	}
 
@@ -86,7 +86,7 @@ func (r *todoRepository) GetByUserID(ctx context.Context, userID string, limit, 
 	// Get total count
 	total, err := r.queries.CountTodosByUserID(ctx, userID)
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to count todos by user ID")
+		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to count todos by user ID.")
 		return nil, 0, fmt.Errorf("failed to count todos: %w", err)
 	}
 
@@ -97,7 +97,7 @@ func (r *todoRepository) GetByUserID(ctx context.Context, userID string, limit, 
 		Offset: int32(offset),
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get todos by user ID")
+		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get todos by user ID.")
 		return nil, 0, fmt.Errorf("failed to get todos: %w", err)
 	}
 
@@ -133,12 +133,12 @@ func (r *todoRepository) Update(ctx context.Context, todo *models.Todo) (*models
 		DueDate:     dueDate,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("todo_id", todo.ID).Msg("Failed to update todo")
+		r.logger.Error().Err(err).Str("todo_id", todo.ID).Msg("Failed to update todo.")
 		return nil, fmt.Errorf("failed to update todo: %w", err)
 	}
 
 	result := r.mapDBTodoToModel(dbTodo)
-	r.logger.Info().Str("todo_id", result.ID).Msg("Todo updated successfully")
+	r.logger.Info().Str("todo_id", result.ID).Msg("Todo updated successfully.")
 	return result, nil
 }
 
@@ -146,11 +146,11 @@ func (r *todoRepository) Update(ctx context.Context, todo *models.Todo) (*models
 func (r *todoRepository) Delete(ctx context.Context, id string) error {
 	err := r.queries.SoftDeleteTodo(ctx, id)
 	if err != nil {
-		r.logger.Error().Err(err).Str("todo_id", id).Msg("Failed to delete todo")
+		r.logger.Error().Err(err).Str("todo_id", id).Msg("Failed to delete todo.")
 		return fmt.Errorf("failed to delete todo: %w", err)
 	}
 
-	r.logger.Info().Str("todo_id", id).Msg("Todo deleted successfully")
+	r.logger.Info().Str("todo_id", id).Msg("Todo deleted successfully.")
 	return nil
 }
 
@@ -161,11 +161,11 @@ func (r *todoRepository) UpdateStatus(ctx context.Context, id, status string) er
 		Status: status,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("todo_id", id).Str("status", status).Msg("Failed to update todo status")
+		r.logger.Error().Err(err).Str("todo_id", id).Str("status", status).Msg("Failed to update todo status.")
 		return fmt.Errorf("failed to update todo status: %w", err)
 	}
 
-	r.logger.Info().Str("todo_id", id).Str("status", status).Msg("Todo status updated successfully")
+	r.logger.Info().Str("todo_id", id).Str("status", status).Msg("Todo status updated successfully.")
 	return nil
 }
 
@@ -177,7 +177,7 @@ func (r *todoRepository) GetByStatus(ctx context.Context, userID, status string,
 		Status: status,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Str("status", status).Msg("Failed to count todos by status")
+		r.logger.Error().Err(err).Str("user_id", userID).Str("status", status).Msg("Failed to count todos by status.")
 		return nil, 0, fmt.Errorf("failed to count todos: %w", err)
 	}
 
@@ -189,7 +189,7 @@ func (r *todoRepository) GetByStatus(ctx context.Context, userID, status string,
 		Offset: int32(offset),
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Str("status", status).Msg("Failed to get todos by status")
+		r.logger.Error().Err(err).Str("user_id", userID).Str("status", status).Msg("Failed to get todos by status.")
 		return nil, 0, fmt.Errorf("failed to get todos: %w", err)
 	}
 
@@ -209,7 +209,7 @@ func (r *todoRepository) GetByPriority(ctx context.Context, userID, priority str
 		Priority: pgtype.Text{String: priority, Valid: true},
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Str("priority", priority).Msg("Failed to count todos by priority")
+		r.logger.Error().Err(err).Str("user_id", userID).Str("priority", priority).Msg("Failed to count todos by priority.")
 		return nil, 0, fmt.Errorf("failed to count todos: %w", err)
 	}
 
@@ -221,7 +221,7 @@ func (r *todoRepository) GetByPriority(ctx context.Context, userID, priority str
 		Offset:   int32(offset),
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Str("priority", priority).Msg("Failed to get todos by priority")
+		r.logger.Error().Err(err).Str("user_id", userID).Str("priority", priority).Msg("Failed to get todos by priority.")
 		return nil, 0, fmt.Errorf("failed to get todos: %w", err)
 	}
 
@@ -238,7 +238,7 @@ func (r *todoRepository) GetOverdue(ctx context.Context, userID string, limit, o
 	// Get total count
 	total, err := r.queries.CountOverdueTodos(ctx, userID)
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to count overdue todos")
+		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to count overdue todos.")
 		return nil, 0, fmt.Errorf("failed to count overdue todos: %w", err)
 	}
 
@@ -249,7 +249,7 @@ func (r *todoRepository) GetOverdue(ctx context.Context, userID string, limit, o
 		Offset: int32(offset),
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get overdue todos")
+		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get overdue todos.")
 		return nil, 0, fmt.Errorf("failed to get overdue todos: %w", err)
 	}
 
@@ -271,14 +271,14 @@ func (r *todoRepository) GetUpcoming(ctx context.Context, userID string, days in
 		Offset: int32(offset),
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get upcoming todos")
+		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get upcoming todos.")
 		return nil, 0, fmt.Errorf("failed to get upcoming todos: %w", err)
 	}
 
 	// Get count
 	total, err := r.queries.CountUpcomingTodos(ctx, userID)
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to count upcoming todos")
+		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to count upcoming todos.")
 		return nil, 0, fmt.Errorf("failed to count upcoming todos: %w", err)
 	}
 
@@ -298,7 +298,7 @@ func (r *todoRepository) Search(ctx context.Context, userID, query string, limit
 		PlaintoTsquery: query,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Str("query", query).Msg("Failed to count search todos")
+		r.logger.Error().Err(err).Str("user_id", userID).Str("query", query).Msg("Failed to count search todos.")
 		return nil, 0, fmt.Errorf("failed to count search todos: %w", err)
 	}
 
@@ -310,7 +310,7 @@ func (r *todoRepository) Search(ctx context.Context, userID, query string, limit
 		Offset:         int32(offset),
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Str("query", query).Msg("Failed to search todos")
+		r.logger.Error().Err(err).Str("user_id", userID).Str("query", query).Msg("Failed to search todos.")
 		return nil, 0, fmt.Errorf("failed to search todos: %w", err)
 	}
 
@@ -326,7 +326,7 @@ func (r *todoRepository) Search(ctx context.Context, userID, query string, limit
 func (r *todoRepository) CountByStatus(ctx context.Context, userID string) (map[string]int64, error) {
 	rows, err := r.queries.GetTodoStatusCounts(ctx, userID)
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get todo status counts")
+		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get todo status counts.")
 		return nil, fmt.Errorf("failed to get todo status counts: %w", err)
 	}
 
@@ -342,11 +342,11 @@ func (r *todoRepository) CountByStatus(ctx context.Context, userID string) (map[
 func (r *todoRepository) MarkCompleted(ctx context.Context, id string) error {
 	err := r.queries.MarkTodoCompleted(ctx, id)
 	if err != nil {
-		r.logger.Error().Err(err).Str("todo_id", id).Msg("Failed to mark todo as completed")
+		r.logger.Error().Err(err).Str("todo_id", id).Msg("Failed to mark todo as completed.")
 		return fmt.Errorf("failed to mark todo as completed: %w", err)
 	}
 
-	r.logger.Info().Str("todo_id", id).Msg("Todo marked as completed")
+	r.logger.Info().Str("todo_id", id).Msg("Todo marked as completed.")
 	return nil
 }
 
@@ -363,11 +363,11 @@ func (r *todoRepository) BulkUpdateStatus(ctx context.Context, ids []string, sta
 		Status:  status,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Strs("todo_ids", ids).Str("status", status).Msg("Failed to bulk update todo status")
+		r.logger.Error().Err(err).Strs("todo_ids", ids).Str("status", status).Msg("Failed to bulk update todo status.")
 		return fmt.Errorf("failed to bulk update todo status: %w", err)
 	}
 
-	r.logger.Info().Strs("todo_ids", ids).Str("status", status).Msg("Todos status updated in bulk")
+	r.logger.Info().Strs("todo_ids", ids).Str("status", status).Msg("Todos status updated in bulk.")
 	return nil
 }
 
@@ -375,11 +375,11 @@ func (r *todoRepository) BulkUpdateStatus(ctx context.Context, ids []string, sta
 func (r *todoRepository) DeleteCompleted(ctx context.Context, userID string) error {
 	err := r.queries.SoftDeleteCompletedTodos(ctx, userID)
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to delete completed todos")
+		r.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to delete completed todos.")
 		return fmt.Errorf("failed to delete completed todos: %w", err)
 	}
 
-	r.logger.Info().Str("user_id", userID).Msg("Completed todos deleted")
+	r.logger.Info().Str("user_id", userID).Msg("Completed todos deleted.")
 	return nil
 }
 

@@ -48,7 +48,7 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) (*models
 		Image:        image,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("username", user.Username).Msg("Failed to create user")
+		r.logger.Error().Err(err).Str("username", user.Username).Msg("Failed to create user.")
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
@@ -67,7 +67,7 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) (*models
 		result.Image = dbUser.Image.String
 	}
 
-	r.logger.Info().Str("user_id", result.ID).Str("username", result.Username).Msg("User created successfully")
+	r.logger.Info().Str("user_id", result.ID).Str("username", result.Username).Msg("User created successfully.")
 	return result, nil
 }
 
@@ -78,7 +78,7 @@ func (r *userRepository) GetByID(ctx context.Context, id string) (*models.User, 
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("user not found")
 		}
-		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to get user by ID")
+		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to get user by ID.")
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
@@ -108,7 +108,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*models.
 
 	dbUser, err := r.queries.GetUserByEmail(ctx, pgtype.Text{String: email, Valid: true})
 	if err != nil {
-		r.logger.Error().Err(err).Str("email", email).Msg("Failed to get user by email")
+		r.logger.Error().Err(err).Str("email", email).Msg("Failed to get user by email.")
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
@@ -134,7 +134,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*models.
 func (r *userRepository) GetByUsername(ctx context.Context, username string) (*models.User, error) {
 	dbUser, err := r.queries.GetUserByUsername(ctx, username)
 	if err != nil {
-		r.logger.Error().Err(err).Str("username", username).Msg("Failed to get user by username")
+		r.logger.Error().Err(err).Str("username", username).Msg("Failed to get user by username.")
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
@@ -174,7 +174,7 @@ func (r *userRepository) Update(ctx context.Context, user *models.User) (*models
 		Image:    image,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to update user")
+		r.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to update user.")
 		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
@@ -193,7 +193,7 @@ func (r *userRepository) Update(ctx context.Context, user *models.User) (*models
 		result.Image = dbUser.Image.String
 	}
 
-	r.logger.Info().Str("user_id", result.ID).Msg("User updated successfully")
+	r.logger.Info().Str("user_id", result.ID).Msg("User updated successfully.")
 	return result, nil
 }
 
@@ -201,11 +201,11 @@ func (r *userRepository) Update(ctx context.Context, user *models.User) (*models
 func (r *userRepository) Delete(ctx context.Context, id string) error {
 	err := r.queries.SoftDeleteUser(ctx, id)
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to delete user")
+		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to delete user.")
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
 
-	r.logger.Info().Str("user_id", id).Msg("User deleted successfully")
+	r.logger.Info().Str("user_id", id).Msg("User deleted successfully.")
 	return nil
 }
 
@@ -221,11 +221,11 @@ func (r *userRepository) UpdateImage(ctx context.Context, id, imageURL string) e
 		Image: image,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to update user image")
+		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to update user image.")
 		return fmt.Errorf("failed to update user image: %w", err)
 	}
 
-	r.logger.Info().Str("user_id", id).Msg("User image updated successfully")
+	r.logger.Info().Str("user_id", id).Msg("User image updated successfully.")
 	return nil
 }
 
@@ -236,11 +236,11 @@ func (r *userRepository) UpdatePassword(ctx context.Context, id, hashedPassword 
 		PasswordHash: hashedPassword,
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to update user password")
+		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to update user password.")
 		return fmt.Errorf("failed to update user password: %w", err)
 	}
 
-	r.logger.Info().Str("user_id", id).Msg("User password updated successfully")
+	r.logger.Info().Str("user_id", id).Msg("User password updated successfully.")
 	return nil
 }
 
@@ -249,7 +249,7 @@ func (r *userRepository) List(ctx context.Context, limit, offset int) ([]*models
 	// Get total count
 	total, err := r.queries.CountUsers(ctx)
 	if err != nil {
-		r.logger.Error().Err(err).Msg("Failed to count users")
+		r.logger.Error().Err(err).Msg("Failed to count users.")
 		return nil, 0, fmt.Errorf("failed to count users: %w", err)
 	}
 
@@ -259,7 +259,7 @@ func (r *userRepository) List(ctx context.Context, limit, offset int) ([]*models
 		Offset: int32(offset),
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Msg("Failed to list users")
+		r.logger.Error().Err(err).Msg("Failed to list users.")
 		return nil, 0, fmt.Errorf("failed to list users: %w", err)
 	}
 
@@ -294,7 +294,7 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 
 	exists, err := r.queries.ExistsByEmail(ctx, pgtype.Text{String: email, Valid: true})
 	if err != nil {
-		r.logger.Error().Err(err).Str("email", email).Msg("Failed to check if user exists by email")
+		r.logger.Error().Err(err).Str("email", email).Msg("Failed to check if user exists by email.")
 		return false, fmt.Errorf("failed to check if user exists: %w", err)
 	}
 
@@ -305,7 +305,7 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 func (r *userRepository) ExistsByUsername(ctx context.Context, username string) (bool, error) {
 	exists, err := r.queries.ExistsByUsername(ctx, username)
 	if err != nil {
-		r.logger.Error().Err(err).Str("username", username).Msg("Failed to check if user exists by username")
+		r.logger.Error().Err(err).Str("username", username).Msg("Failed to check if user exists by username.")
 		return false, fmt.Errorf("failed to check if user exists: %w", err)
 	}
 

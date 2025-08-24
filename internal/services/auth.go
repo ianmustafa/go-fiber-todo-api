@@ -54,7 +54,7 @@ func (s *AuthService) Register(ctx context.Context, req *models.RegisterRequest)
 	// Check if username already exists
 	exists, err := s.userRepo.ExistsByUsername(ctx, req.Username)
 	if err != nil {
-		s.logger.Error().Err(err).Str("username", req.Username).Msg("Failed to check username existence")
+		s.logger.Error().Err(err).Str("username", req.Username).Msg("Failed to check username existence.")
 		return nil, fmt.Errorf("failed to check username: %w", err)
 	}
 	if exists {
@@ -65,7 +65,7 @@ func (s *AuthService) Register(ctx context.Context, req *models.RegisterRequest)
 	if req.Email != "" {
 		exists, err := s.userRepo.ExistsByEmail(ctx, req.Email)
 		if err != nil {
-			s.logger.Error().Err(err).Str("email", req.Email).Msg("Failed to check email existence")
+			s.logger.Error().Err(err).Str("email", req.Email).Msg("Failed to check email existence.")
 			return nil, fmt.Errorf("failed to check email: %w", err)
 		}
 		if exists {
@@ -76,7 +76,7 @@ func (s *AuthService) Register(ctx context.Context, req *models.RegisterRequest)
 	// Hash password
 	hashedPassword, err := s.hashPassword(req.Password)
 	if err != nil {
-		s.logger.Error().Err(err).Msg("Failed to hash password")
+		s.logger.Error().Err(err).Msg("Failed to hash password.")
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
@@ -90,11 +90,11 @@ func (s *AuthService) Register(ctx context.Context, req *models.RegisterRequest)
 
 	createdUser, err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		s.logger.Error().Err(err).Str("username", req.Username).Msg("Failed to create user")
+		s.logger.Error().Err(err).Str("username", req.Username).Msg("Failed to create user.")
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	s.logger.Info().Str("user_id", createdUser.ID).Str("username", createdUser.Username).Msg("User registered successfully")
+	s.logger.Info().Str("user_id", createdUser.ID).Str("username", createdUser.Username).Msg("User registered successfully.")
 
 	return &models.RegisterResponse{
 		User:    createdUser.ToResponse(),
@@ -107,13 +107,13 @@ func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest) (*mod
 	// Get user by username
 	user, err := s.userRepo.GetByUsername(ctx, req.Username)
 	if err != nil {
-		s.logger.Error().Err(err).Str("username", req.Username).Msg("Failed to get user by username")
+		s.logger.Error().Err(err).Str("username", req.Username).Msg("Failed to get user by username.")
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
 	// Verify password
 	if err := s.verifyPassword(user.Password, req.Password); err != nil {
-		s.logger.Warn().Str("username", req.Username).Msg("Invalid password attempt")
+		s.logger.Warn().Str("username", req.Username).Msg("Invalid password attempt.")
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
@@ -132,24 +132,24 @@ func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest) (*mod
 
 	// Store session
 	if err := s.sessionStore.Set(ctx, sessionID, session, s.config.RefreshExpiry); err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to store session")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to store session.")
 		return nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
 	// Generate tokens
 	accessToken, err := s.generateAccessToken(user.ID, user.Username, sessionID)
 	if err != nil {
-		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to generate access token")
+		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to generate access token.")
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
 
 	refreshToken, err := s.generateRefreshToken(user.ID, user.Username, sessionID)
 	if err != nil {
-		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to generate refresh token")
+		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to generate refresh token.")
 		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 
-	s.logger.Info().Str("user_id", user.ID).Str("username", user.Username).Msg("User logged in successfully")
+	s.logger.Info().Str("user_id", user.ID).Str("username", user.Username).Msg("User logged in successfully.")
 
 	return &models.LoginResponse{
 		AccessToken:  accessToken,
@@ -164,13 +164,13 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *models.LoginByEmail
 	// Get user by email
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		s.logger.Error().Err(err).Str("email", req.Email).Msg("Failed to get user by email")
+		s.logger.Error().Err(err).Str("email", req.Email).Msg("Failed to get user by email.")
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
 	// Verify password
 	if err := s.verifyPassword(user.Password, req.Password); err != nil {
-		s.logger.Warn().Str("email", req.Email).Msg("Invalid password attempt")
+		s.logger.Warn().Str("email", req.Email).Msg("Invalid password attempt.")
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
@@ -189,24 +189,24 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *models.LoginByEmail
 
 	// Store session
 	if err := s.sessionStore.Set(ctx, sessionID, session, s.config.RefreshExpiry); err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to store session")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to store session.")
 		return nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
 	// Generate tokens
 	accessToken, err := s.generateAccessToken(user.ID, user.Username, sessionID)
 	if err != nil {
-		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to generate access token")
+		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to generate access token.")
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
 
 	refreshToken, err := s.generateRefreshToken(user.ID, user.Username, sessionID)
 	if err != nil {
-		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to generate refresh token")
+		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to generate refresh token.")
 		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 
-	s.logger.Info().Str("user_id", user.ID).Str("email", req.Email).Msg("User logged in successfully")
+	s.logger.Info().Str("user_id", user.ID).Str("email", req.Email).Msg("User logged in successfully.")
 
 	return &models.LoginResponse{
 		AccessToken:  accessToken,
@@ -221,31 +221,31 @@ func (s *AuthService) RefreshToken(ctx context.Context, req *models.RefreshToken
 	// Parse and validate refresh token
 	claims, err := s.validateToken(req.RefreshToken, models.TokenTypeRefresh)
 	if err != nil {
-		s.logger.Error().Err(err).Msg("Invalid refresh token")
+		s.logger.Error().Err(err).Msg("Invalid refresh token.")
 		return nil, fmt.Errorf("invalid refresh token")
 	}
 
 	// Get session
 	session, err := s.sessionStore.Get(ctx, claims.SessionID)
 	if err != nil {
-		s.logger.Error().Err(err).Str("session_id", claims.SessionID).Msg("Failed to get session")
+		s.logger.Error().Err(err).Str("session_id", claims.SessionID).Msg("Failed to get session.")
 		return nil, fmt.Errorf("invalid session")
 	}
 
 	// Check if session is active and not expired
 	if !session.IsActive || time.Now().After(session.ExpiresAt) {
-		s.logger.Warn().Str("session_id", claims.SessionID).Msg("Session is inactive or expired")
+		s.logger.Warn().Str("session_id", claims.SessionID).Msg("Session is inactive or expired.")
 		return nil, fmt.Errorf("session expired")
 	}
 
 	// Generate new access token
 	accessToken, err := s.generateAccessToken(claims.UserID, claims.Username, claims.SessionID)
 	if err != nil {
-		s.logger.Error().Err(err).Str("user_id", claims.UserID).Msg("Failed to generate access token")
+		s.logger.Error().Err(err).Str("user_id", claims.UserID).Msg("Failed to generate access token.")
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
 
-	s.logger.Info().Str("user_id", claims.UserID).Str("session_id", claims.SessionID).Msg("Token refreshed successfully")
+	s.logger.Info().Str("user_id", claims.UserID).Str("session_id", claims.SessionID).Msg("Token refreshed successfully.")
 
 	return &models.RefreshTokenResponse{
 		AccessToken: accessToken,
@@ -261,9 +261,9 @@ func (s *AuthService) Logout(ctx context.Context, req *models.LogoutRequest) (*m
 		if err == nil {
 			// Delete session
 			if err := s.sessionStore.Delete(ctx, claims.SessionID); err != nil {
-				s.logger.Error().Err(err).Str("session_id", claims.SessionID).Msg("Failed to delete session")
+				s.logger.Error().Err(err).Str("session_id", claims.SessionID).Msg("Failed to delete session.")
 			} else {
-				s.logger.Info().Str("user_id", claims.UserID).Str("session_id", claims.SessionID).Msg("User logged out successfully")
+				s.logger.Info().Str("user_id", claims.UserID).Str("session_id", claims.SessionID).Msg("User logged out successfully.")
 			}
 		}
 	}
@@ -277,7 +277,7 @@ func (s *AuthService) Logout(ctx context.Context, req *models.LogoutRequest) (*m
 func (s *AuthService) GetAuthenticatedUser(ctx context.Context, userID string) (*models.AuthUserResponse, error) {
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
-		s.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get authenticated user")
+		s.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get authenticated user.")
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 

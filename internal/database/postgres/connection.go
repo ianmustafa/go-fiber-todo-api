@@ -73,7 +73,7 @@ func (db *DB) Ping(ctx context.Context) error {
 // Close closes the database connection pool
 func (db *DB) Close() {
 	if db.Pool != nil {
-		db.logger.Info().Msg("Closing PostgreSQL connection pool")
+		db.logger.Info().Msg("Closing PostgreSQL connection pool.")
 		db.Pool.Close()
 	}
 }

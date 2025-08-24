@@ -17,6 +17,48 @@ type Todo struct {
 	UpdatedAt   time.Time  `json:"updatedAt" db:"updated_at"`
 }
 
+// GetTodosQueryParams represents query parameters for getting todos
+type GetTodosQueryParams struct {
+	Limit    int    `query:"limit" validate:"omitempty,min=1,max=100"`
+	Offset   int    `query:"offset" validate:"omitempty,min=0"`
+	Status   string `query:"status" validate:"omitempty,oneof=pending in_progress completed"`
+	Priority string `query:"priority" validate:"omitempty,oneof=low medium high"`
+}
+
+// PaginationQueryParams represents basic pagination query parameters
+type PaginationQueryParams struct {
+	Limit  int `query:"limit" validate:"omitempty,min=1,max=100"`
+	Offset int `query:"offset" validate:"omitempty,min=0"`
+}
+
+// SearchTodosQueryParams represents query parameters for searching todos
+type SearchTodosQueryParams struct {
+	Query  string `query:"q" validate:"required,min=1"`
+	Limit  int    `query:"limit" validate:"omitempty,min=1,max=100"`
+	Offset int    `query:"offset" validate:"omitempty,min=0"`
+}
+
+// SetDefaults sets default values for query parameters
+func (q *GetTodosQueryParams) SetDefaults() {
+	if q.Limit == 0 {
+		q.Limit = 10
+	}
+}
+
+// SetDefaults sets default values for pagination parameters
+func (p *PaginationQueryParams) SetDefaults() {
+	if p.Limit == 0 {
+		p.Limit = 10
+	}
+}
+
+// SetDefaults sets default values for search parameters
+func (s *SearchTodosQueryParams) SetDefaults() {
+	if s.Limit == 0 {
+		s.Limit = 10
+	}
+}
+
 // CreateTodoRequest represents the request to create a new todo
 type CreateTodoRequest struct {
 	Title       string     `json:"title" validate:"required,min=1,max=200"`

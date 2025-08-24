@@ -16,10 +16,12 @@ func (s *Server) setupMiddleware() {
 	s.app.Use(recover.New())
 
 	// Logger middleware
-	s.app.Use(logger.New(logger.Config{
-		Format: "${time} ${status} - ${method} ${path} - ${ip} - ${latency}\n",
-		Output: os.Stdout,
-	}))
+	if s.config.Server.Environment != "production" {
+		s.app.Use(logger.New(logger.Config{
+			Format: "${time} ${status} - ${method} ${path} - ${ip} - ${latency}\n",
+			Output: os.Stdout,
+		}))
+	}
 
 	// CORS middleware
 	s.app.Use(cors.New(cors.Config{
@@ -42,7 +44,8 @@ func (s *Server) setupMiddleware() {
 				"message": "Rate limit exceeded",
 			})
 		},
+		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
 
-	s.logger.Info().Msg("Middleware setup completed")
+	s.logger.Info().Msg("Middleware setup completed.")
 }

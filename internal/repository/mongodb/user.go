@@ -61,12 +61,12 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) (*models
 
 	_, err := r.collection.InsertOne(ctx, mongoUser)
 	if err != nil {
-		r.logger.Error().Err(err).Str("username", user.Username).Msg("Failed to create user")
+		r.logger.Error().Err(err).Str("username", user.Username).Msg("Failed to create user.")
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	result := r.mongoUserToModel(mongoUser)
-	r.logger.Info().Str("user_id", result.ID).Str("username", result.Username).Msg("User created successfully")
+	r.logger.Info().Str("user_id", result.ID).Str("username", result.Username).Msg("User created successfully.")
 	return result, nil
 }
 
@@ -83,7 +83,7 @@ func (r *userRepository) GetByID(ctx context.Context, id string) (*models.User, 
 		if err == mongo.ErrNoDocuments {
 			return nil, fmt.Errorf("user not found")
 		}
-		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to get user by ID")
+		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to get user by ID.")
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
@@ -107,7 +107,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*models.
 		if err == mongo.ErrNoDocuments {
 			return nil, fmt.Errorf("user not found")
 		}
-		r.logger.Error().Err(err).Str("email", email).Msg("Failed to get user by email")
+		r.logger.Error().Err(err).Str("email", email).Msg("Failed to get user by email.")
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
@@ -127,7 +127,7 @@ func (r *userRepository) GetByUsername(ctx context.Context, username string) (*m
 		if err == mongo.ErrNoDocuments {
 			return nil, fmt.Errorf("user not found")
 		}
-		r.logger.Error().Err(err).Str("username", username).Msg("Failed to get user by username")
+		r.logger.Error().Err(err).Str("username", username).Msg("Failed to get user by username.")
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
@@ -157,12 +157,12 @@ func (r *userRepository) Update(ctx context.Context, user *models.User) (*models
 		if err == mongo.ErrNoDocuments {
 			return nil, fmt.Errorf("user not found")
 		}
-		r.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to update user")
+		r.logger.Error().Err(err).Str("user_id", user.ID).Msg("Failed to update user.")
 		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
 	result := r.mongoUserToModel(&mongoUser)
-	r.logger.Info().Str("user_id", result.ID).Msg("User updated successfully")
+	r.logger.Info().Str("user_id", result.ID).Msg("User updated successfully.")
 	return result, nil
 }
 
@@ -182,7 +182,7 @@ func (r *userRepository) Delete(ctx context.Context, id string) error {
 
 	result, err := r.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to delete user")
+		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to delete user.")
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
 
@@ -190,7 +190,7 @@ func (r *userRepository) Delete(ctx context.Context, id string) error {
 		return fmt.Errorf("user not found")
 	}
 
-	r.logger.Info().Str("user_id", id).Msg("User deleted successfully")
+	r.logger.Info().Str("user_id", id).Msg("User deleted successfully.")
 	return nil
 }
 
@@ -210,7 +210,7 @@ func (r *userRepository) UpdateImage(ctx context.Context, id, imageURL string) e
 
 	result, err := r.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to update user image")
+		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to update user image.")
 		return fmt.Errorf("failed to update user image: %w", err)
 	}
 
@@ -218,7 +218,7 @@ func (r *userRepository) UpdateImage(ctx context.Context, id, imageURL string) e
 		return fmt.Errorf("user not found")
 	}
 
-	r.logger.Info().Str("user_id", id).Msg("User image updated successfully")
+	r.logger.Info().Str("user_id", id).Msg("User image updated successfully.")
 	return nil
 }
 
@@ -238,7 +238,7 @@ func (r *userRepository) UpdatePassword(ctx context.Context, id, hashedPassword 
 
 	result, err := r.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to update user password")
+		r.logger.Error().Err(err).Str("user_id", id).Msg("Failed to update user password.")
 		return fmt.Errorf("failed to update user password: %w", err)
 	}
 
@@ -246,7 +246,7 @@ func (r *userRepository) UpdatePassword(ctx context.Context, id, hashedPassword 
 		return fmt.Errorf("user not found")
 	}
 
-	r.logger.Info().Str("user_id", id).Msg("User password updated successfully")
+	r.logger.Info().Str("user_id", id).Msg("User password updated successfully.")
 	return nil
 }
 
@@ -257,7 +257,7 @@ func (r *userRepository) List(ctx context.Context, limit, offset int) ([]*models
 	// Get total count
 	total, err := r.collection.CountDocuments(ctx, filter)
 	if err != nil {
-		r.logger.Error().Err(err).Msg("Failed to count users")
+		r.logger.Error().Err(err).Msg("Failed to count users.")
 		return nil, 0, fmt.Errorf("failed to count users: %w", err)
 	}
 
@@ -269,14 +269,14 @@ func (r *userRepository) List(ctx context.Context, limit, offset int) ([]*models
 
 	cursor, err := r.collection.Find(ctx, filter, opts)
 	if err != nil {
-		r.logger.Error().Err(err).Msg("Failed to list users")
+		r.logger.Error().Err(err).Msg("Failed to list users.")
 		return nil, 0, fmt.Errorf("failed to list users: %w", err)
 	}
 	defer cursor.Close(ctx)
 
 	var mongoUsers []MongoUser
 	if err := cursor.All(ctx, &mongoUsers); err != nil {
-		r.logger.Error().Err(err).Msg("Failed to decode users")
+		r.logger.Error().Err(err).Msg("Failed to decode users.")
 		return nil, 0, fmt.Errorf("failed to decode users: %w", err)
 	}
 
@@ -301,7 +301,7 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 
 	count, err := r.collection.CountDocuments(ctx, filter)
 	if err != nil {
-		r.logger.Error().Err(err).Str("email", email).Msg("Failed to check if user exists by email")
+		r.logger.Error().Err(err).Str("email", email).Msg("Failed to check if user exists by email.")
 		return false, fmt.Errorf("failed to check if user exists: %w", err)
 	}
 
@@ -317,7 +317,7 @@ func (r *userRepository) ExistsByUsername(ctx context.Context, username string) 
 
 	count, err := r.collection.CountDocuments(ctx, filter)
 	if err != nil {
-		r.logger.Error().Err(err).Str("username", username).Msg("Failed to check if user exists by username")
+		r.logger.Error().Err(err).Str("username", username).Msg("Failed to check if user exists by username.")
 		return false, fmt.Errorf("failed to check if user exists: %w", err)
 	}
 

@@ -44,7 +44,7 @@ func main() {
 	// Create and start server
 	srv := server.New(cfg, appLogger)
 	if err := srv.Start(); err != nil {
-		appLogger.Fatal().Err(err).Msg("Server failed to start")
+		appLogger.Fatal().Err(err).Msg("Server failed to start.")
 	}
 }
 
@@ -59,7 +59,7 @@ func setupLogger(cfg *config.Config) zerolog.Logger {
 
 	// Configure logger output
 	var appLogger zerolog.Logger
-	if cfg.Server.Environment != "production" {
+	if cfg.IsNotProduction() {
 		appLogger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).
 			With().
 			Timestamp().

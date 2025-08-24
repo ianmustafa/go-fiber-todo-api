@@ -36,13 +36,13 @@ func NewConnection(config Config, logger zerolog.Logger) (*Connection, error) {
 	// Create client
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to connect to MongoDB")
+		logger.Error().Err(err).Msg("Failed to connect to MongoDB.")
 		return nil, fmt.Errorf("failed to connect to MongoDB: %w", err)
 	}
 
 	// Ping the database to verify connection
 	if err := client.Ping(ctx, readpref.Primary()); err != nil {
-		logger.Error().Err(err).Msg("Failed to ping MongoDB")
+		logger.Error().Err(err).Msg("Failed to ping MongoDB.")
 		return nil, fmt.Errorf("failed to ping MongoDB: %w", err)
 	}
 
@@ -62,11 +62,11 @@ func NewConnection(config Config, logger zerolog.Logger) (*Connection, error) {
 // Close closes the MongoDB connection
 func (c *Connection) Close(ctx context.Context) error {
 	if err := c.Client.Disconnect(ctx); err != nil {
-		c.logger.Error().Err(err).Msg("Failed to disconnect from MongoDB")
+		c.logger.Error().Err(err).Msg("Failed to disconnect from MongoDB.")
 		return fmt.Errorf("failed to disconnect from MongoDB: %w", err)
 	}
 
-	c.logger.Info().Msg("Successfully disconnected from MongoDB")
+	c.logger.Info().Msg("Successfully disconnected from MongoDB.")
 	return nil
 }
 

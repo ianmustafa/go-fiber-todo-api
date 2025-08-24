@@ -85,7 +85,7 @@ func (s *Server) Start() error {
 			Msg("Starting server")
 
 		if err := s.app.Listen(address); err != nil {
-			s.logger.Fatal().Err(err).Msg("Failed to start server")
+			s.logger.Fatal().Err(err).Msg("Failed to start server.")
 		}
 	}()
 
@@ -94,25 +94,25 @@ func (s *Server) Start() error {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	s.logger.Info().Msg("Shutting down server...")
+	s.logger.Info().Msg("Shutting down server....")
 
 	// Graceful shutdown with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	if err := s.app.ShutdownWithContext(ctx); err != nil {
-		s.logger.Error().Err(err).Msg("Server forced to shutdown")
+		s.logger.Error().Err(err).Msg("Server forced to shutdown.")
 		return err
 	}
 
 	// Close Redis connection
 	if s.redisClient != nil {
 		if err := s.redisClient.Close(); err != nil {
-			s.logger.Error().Err(err).Msg("Failed to close Redis connection")
+			s.logger.Error().Err(err).Msg("Failed to close Redis connection.")
 		}
 	}
 
-	s.logger.Info().Msg("Server exited")
+	s.logger.Info().Msg("Server exited.")
 	return nil
 }
 

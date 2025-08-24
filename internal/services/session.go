@@ -35,17 +35,17 @@ func (s *RedisSessionStore) Set(ctx context.Context, sessionID string, session *
 	// Serialize session to JSON
 	data, err := json.Marshal(session)
 	if err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to marshal session")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to marshal session.")
 		return fmt.Errorf("failed to marshal session: %w", err)
 	}
 
 	// Store in Redis with expiration
 	if err := s.client.Set(ctx, key, data, expiration).Err(); err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to store session in Redis")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to store session in Redis.")
 		return fmt.Errorf("failed to store session: %w", err)
 	}
 
-	s.logger.Debug().Str("session_id", sessionID).Dur("expiration", expiration).Msg("Session stored successfully")
+	s.logger.Debug().Str("session_id", sessionID).Dur("expiration", expiration).Msg("Session stored successfully.")
 	return nil
 }
 
@@ -59,18 +59,18 @@ func (s *RedisSessionStore) Get(ctx context.Context, sessionID string) (*models.
 		if err == redis.Nil {
 			return nil, fmt.Errorf("session not found")
 		}
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to get session from Redis")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to get session from Redis.")
 		return nil, fmt.Errorf("failed to get session: %w", err)
 	}
 
 	// Deserialize session from JSON
 	var session models.Session
 	if err := json.Unmarshal([]byte(data), &session); err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to unmarshal session")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to unmarshal session.")
 		return nil, fmt.Errorf("failed to unmarshal session: %w", err)
 	}
 
-	s.logger.Debug().Str("session_id", sessionID).Msg("Session retrieved successfully")
+	s.logger.Debug().Str("session_id", sessionID).Msg("Session retrieved successfully.")
 	return &session, nil
 }
 
@@ -81,16 +81,16 @@ func (s *RedisSessionStore) Delete(ctx context.Context, sessionID string) error 
 	// Delete from Redis
 	result, err := s.client.Del(ctx, key).Result()
 	if err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to delete session from Redis")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to delete session from Redis.")
 		return fmt.Errorf("failed to delete session: %w", err)
 	}
 
 	if result == 0 {
-		s.logger.Warn().Str("session_id", sessionID).Msg("Session not found for deletion")
+		s.logger.Warn().Str("session_id", sessionID).Msg("Session not found for deletion.")
 		return fmt.Errorf("session not found")
 	}
 
-	s.logger.Debug().Str("session_id", sessionID).Msg("Session deleted successfully")
+	s.logger.Debug().Str("session_id", sessionID).Msg("Session deleted successfully.")
 	return nil
 }
 
@@ -100,7 +100,7 @@ func (s *RedisSessionStore) DeleteUserSessions(ctx context.Context, userID strin
 	pattern := s.prefix + "*"
 	keys, err := s.client.Keys(ctx, pattern).Result()
 	if err != nil {
-		s.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get session keys")
+		s.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get session keys.")
 		return fmt.Errorf("failed to get session keys: %w", err)
 	}
 
@@ -126,11 +126,11 @@ func (s *RedisSessionStore) DeleteUserSessions(ctx context.Context, userID strin
 	if len(userSessionKeys) > 0 {
 		deleted, err := s.client.Del(ctx, userSessionKeys...).Result()
 		if err != nil {
-			s.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to delete user sessions")
+			s.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to delete user sessions.")
 			return fmt.Errorf("failed to delete user sessions: %w", err)
 		}
 
-		s.logger.Info().Str("user_id", userID).Int64("deleted_count", deleted).Msg("User sessions deleted successfully")
+		s.logger.Info().Str("user_id", userID).Int64("deleted_count", deleted).Msg("User sessions deleted successfully.")
 	}
 
 	return nil
@@ -142,7 +142,7 @@ func (s *RedisSessionStore) Exists(ctx context.Context, sessionID string) (bool,
 
 	result, err := s.client.Exists(ctx, key).Result()
 	if err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to check session existence")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to check session existence.")
 		return false, fmt.Errorf("failed to check session existence: %w", err)
 	}
 
@@ -156,7 +156,7 @@ func (s *RedisSessionStore) Extend(ctx context.Context, sessionID string, expira
 	// Check if session exists
 	exists, err := s.client.Exists(ctx, key).Result()
 	if err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to check session existence")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to check session existence.")
 		return fmt.Errorf("failed to check session existence: %w", err)
 	}
 
@@ -166,11 +166,11 @@ func (s *RedisSessionStore) Extend(ctx context.Context, sessionID string, expira
 
 	// Extend expiration
 	if err := s.client.Expire(ctx, key, expiration).Err(); err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to extend session expiration")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to extend session expiration.")
 		return fmt.Errorf("failed to extend session expiration: %w", err)
 	}
 
-	s.logger.Debug().Str("session_id", sessionID).Dur("expiration", expiration).Msg("Session expiration extended")
+	s.logger.Debug().Str("session_id", sessionID).Dur("expiration", expiration).Msg("Session expiration extended.")
 	return nil
 }
 
@@ -180,7 +180,7 @@ func (s *RedisSessionStore) GetTTL(ctx context.Context, sessionID string) (time.
 
 	ttl, err := s.client.TTL(ctx, key).Result()
 	if err != nil {
-		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to get session TTL")
+		s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to get session TTL.")
 		return 0, fmt.Errorf("failed to get session TTL: %w", err)
 	}
 
@@ -192,7 +192,7 @@ func (s *RedisSessionStore) Count(ctx context.Context) (int64, error) {
 	pattern := s.prefix + "*"
 	keys, err := s.client.Keys(ctx, pattern).Result()
 	if err != nil {
-		s.logger.Error().Err(err).Msg("Failed to count sessions")
+		s.logger.Error().Err(err).Msg("Failed to count sessions.")
 		return 0, fmt.Errorf("failed to count sessions: %w", err)
 	}
 
@@ -204,7 +204,7 @@ func (s *RedisSessionStore) CountUserSessions(ctx context.Context, userID string
 	pattern := s.prefix + "*"
 	keys, err := s.client.Keys(ctx, pattern).Result()
 	if err != nil {
-		s.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get session keys")
+		s.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get session keys.")
 		return 0, fmt.Errorf("failed to get session keys: %w", err)
 	}
 
@@ -231,7 +231,7 @@ func (s *RedisSessionStore) CountUserSessions(ctx context.Context, userID string
 // Cleanup removes expired sessions (Redis handles this automatically, but this can be used for manual cleanup)
 func (s *RedisSessionStore) Cleanup(ctx context.Context) error {
 	// Redis automatically handles expiration, but we can implement manual cleanup if needed
-	s.logger.Info().Msg("Session cleanup completed (Redis handles expiration automatically)")
+	s.logger.Info().Msg("Session cleanup completed (Redis handles expiration automatically).")
 	return nil
 }
 

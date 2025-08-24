@@ -172,7 +172,7 @@ func (c *Client) Ping() error {
 	defer cancel()
 
 	if err := c.Client.Ping(ctx).Err(); err != nil {
-		c.logger.Error().Err(err).Msg("Redis ping failed")
+		c.logger.Error().Err(err).Msg("Redis ping failed.")
 		return err
 	}
 
@@ -182,11 +182,11 @@ func (c *Client) Ping() error {
 // Close closes the Redis connection
 func (c *Client) Close() error {
 	if err := c.Client.Close(); err != nil {
-		c.logger.Error().Err(err).Msg("Failed to close Redis connection")
+		c.logger.Error().Err(err).Msg("Failed to close Redis connection.")
 		return err
 	}
 
-	c.logger.Info().Msg("Redis connection closed")
+	c.logger.Info().Msg("Redis connection closed.")
 	return nil
 }
 

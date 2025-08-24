@@ -15,7 +15,7 @@ import (
 
 // setupDependencies initializes repositories, services, and handlers
 func (s *Server) setupDependencies() error {
-	s.logger.Info().Str("driver", s.config.Database.Driver).Msg("Setting up repositories")
+	s.logger.Info().Str("driver", s.config.Database.Driver).Msg("Setting up repositories.")
 
 	// Determine database type from config
 	var dbType repository.DatabaseType
@@ -37,11 +37,11 @@ func (s *Server) setupDependencies() error {
 		// Setup PostgreSQL connection
 		pgConn, err := postgres.New(&s.config.Database, s.logger)
 		if err != nil {
-			s.logger.Error().Err(err).Msg("Failed to connect to PostgreSQL")
+			s.logger.Error().Err(err).Msg("Failed to connect to PostgreSQL.")
 			return err
 		}
 		pgDB = pgConn.Pool
-		s.logger.Info().Msg("Successfully connected to PostgreSQL")
+		s.logger.Info().Msg("Successfully connected to PostgreSQL.")
 	} else {
 		// Setup MongoDB connection
 		mongoConfig := mongodb.Config{
@@ -52,25 +52,28 @@ func (s *Server) setupDependencies() error {
 
 		mongoConn, err := mongodb.NewConnection(mongoConfig, s.logger)
 		if err != nil {
-			s.logger.Error().Err(err).Msg("Failed to connect to MongoDB")
+			s.logger.Error().Err(err).Msg("Failed to connect to MongoDB.")
 			return err
 		}
 		mongoDB = mongoConn.Database
-		s.logger.Info().Msg("Successfully connected to MongoDB")
+		s.logger.Info().Msg("Successfully connected to MongoDB.")
 	}
 
 	// Create repositories with actual database connections
 	userRepo, err := repoFactory.CreateUserRepository(pgDB, mongoDB)
 	if err != nil {
-		s.logger.Error().Err(err).Msg("Failed to create user repository")
+		s.logger.Error().Err(err).Msg("Failed to create user repository.")
 		return err
 	}
 
 	todoRepo, err := repoFactory.CreateTodoRepository(pgDB, mongoDB)
 	if err != nil {
-		s.logger.Error().Err(err).Msg("Failed to create todo repository")
+		s.logger.Error().Err(err).Msg("Failed to create todo repository.")
 		return err
 	}
+
+	// Setup health check handler
+	s.healthHandler = handlers.NewHealthHandler(pgDB, mongoDB, s.redisClient, s.logger)
 
 	// Setup services
 	sessionStore := services.NewRedisSessionStore(s.redisClient, s.logger)
@@ -79,8 +82,7 @@ func (s *Server) setupDependencies() error {
 	// Setup handlers
 	s.authHandler = handlers.NewAuthHandler(s.authService, s.validator, s.logger)
 	s.todoHandler = handlers.NewTodoHandler(todoRepo, s.validator, s.logger)
-	s.healthHandler = handlers.NewHealthHandler(pgDB, mongoDB, s.redisClient, s.logger)
 
-	s.logger.Info().Msg("Successfully initialized all dependencies")
+	s.logger.Info().Msg("Successfully initialized all dependencies.")
 	return nil
 }

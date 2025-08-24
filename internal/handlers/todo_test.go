@@ -29,21 +29,15 @@ func setupFiberApp(handler *TodoHandler) *fiber.App {
 	app := fiber.New()
 
 	// Add middleware to set user context for testing
-	app.Use(func(c *fiber.Ctx) error {
+	authMiddleware := func(c *fiber.Ctx) error {
 		c.Locals("userID", "test-user-id")
 		c.Locals("username", "testuser")
 		return c.Next()
-	})
+	}
 
-	// Register routes
+	// Register routes using the handler's RegisterRoutes method
 	api := app.Group("/api/v1")
-	todos := api.Group("/todos")
-
-	todos.Post("/", handler.CreateTodo)
-	todos.Get("/", handler.GetTodos)
-	todos.Get("/:id", handler.GetTodo)
-	todos.Put("/:id", handler.UpdateTodo)
-	todos.Delete("/:id", handler.DeleteTodo)
+	handler.RegisterRoutes(api, authMiddleware)
 
 	return app
 }
@@ -73,7 +67,7 @@ func TestTodoHandler_CreateTodo(t *testing.T) {
 		mockRepo.On("Create", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(expectedTodo, nil)
 
 		body, _ := json.Marshal(reqBody)
-		req := httptest.NewRequest("POST", "/api/v1/todos/", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/api/v1/todos", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 
 		// Act
@@ -95,7 +89,7 @@ func TestTodoHandler_CreateTodo(t *testing.T) {
 
 	t.Run("invalid request body", func(t *testing.T) {
 		// Arrange
-		req := httptest.NewRequest("POST", "/api/v1/todos/", bytes.NewReader([]byte("invalid json")))
+		req := httptest.NewRequest("POST", "/api/v1/todos", bytes.NewReader([]byte("invalid json")))
 		req.Header.Set("Content-Type", "application/json")
 
 		// Act
@@ -114,7 +108,7 @@ func TestTodoHandler_CreateTodo(t *testing.T) {
 		}
 
 		body, _ := json.Marshal(reqBody)
-		req := httptest.NewRequest("POST", "/api/v1/todos/", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/api/v1/todos", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 
 		// Act
@@ -157,7 +151,7 @@ func TestTodoHandler_GetTodos(t *testing.T) {
 
 		mockRepo.On("GetByUserID", mock.Anything, "test-user-id", 10, 0).Return(expectedTodos, int64(2), nil)
 
-		req := httptest.NewRequest("GET", "/api/v1/todos/", nil)
+		req := httptest.NewRequest("GET", "/api/v1/todos", nil)
 
 		// Act
 		resp, err := app.Test(req)
@@ -194,7 +188,7 @@ func TestTodoHandler_GetTodos(t *testing.T) {
 
 		mockRepo.On("GetByUserID", mock.Anything, "test-user-id", 5, 5).Return(expectedTodos, int64(6), nil)
 
-		req := httptest.NewRequest("GET", "/api/v1/todos/?limit=5&offset=5", nil)
+		req := httptest.NewRequest("GET", "/api/v1/todos?limit=5&offset=5", nil)
 
 		// Act
 		resp, err := app.Test(req)

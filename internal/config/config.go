@@ -210,6 +210,11 @@ func (c *Config) IsDevelopment() bool {
 	return c.Server.Environment == "development"
 }
 
+// IsDevelopment returns true if the environment is development
+func (c *Config) IsNotProduction() bool {
+	return c.Server.Environment != "development"
+}
+
 // IsProduction returns true if the environment is production
 func (c *Config) IsProduction() bool {
 	return c.Server.Environment == "production"

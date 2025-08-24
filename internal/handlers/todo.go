@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strconv"
-
 	"go-fiber/internal/middleware"
 	"go-fiber/internal/models"
 	"go-fiber/internal/repository/interfaces"
@@ -35,17 +33,19 @@ func (h *TodoHandler) RegisterRoutes(router fiber.Router, authMiddleware fiber.H
 	// CRUD operations
 	todos.Post("/", h.CreateTodo)
 	todos.Get("/", h.GetTodos)
+
+	// Special operations (must be registered before parameterized routes)
+	todos.Get("/overdue", h.GetOverdueTodos)
+	todos.Get("/search", h.SearchTodos)
+	todos.Get("/stats", h.GetTodoStats)
+
+	// Parameterized routes (must be registered after specific routes)
 	todos.Get("/:id", h.GetTodo)
 	todos.Put("/:id", h.UpdateTodo)
 	todos.Delete("/:id", h.DeleteTodo)
 
 	// Status operations
 	todos.Patch("/:id/status", h.UpdateTodoStatus)
-
-	// Special operations
-	todos.Get("/overdue", h.GetOverdueTodos)
-	todos.Get("/search", h.SearchTodos)
-	todos.Get("/stats", h.GetTodoStats)
 }
 
 // CreateTodo handles todo creation
@@ -75,7 +75,7 @@ func (h *TodoHandler) CreateTodo(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Failed to parse create todo request")
+		h.logger.Error().Err(err).Msg("Failed to parse create todo request.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Bad Request",
 			"message": "Invalid request body",
@@ -84,7 +84,7 @@ func (h *TodoHandler) CreateTodo(c *fiber.Ctx) error {
 
 	// Validate request
 	if err := h.validator.Struct(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Create todo request validation failed")
+		h.logger.Error().Err(err).Msg("Create todo request validation failed.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Validation Error",
 			"message": "Invalid input data",
@@ -103,14 +103,14 @@ func (h *TodoHandler) CreateTodo(c *fiber.Ctx) error {
 
 	createdTodo, err := h.todoRepo.Create(c.Context(), todo)
 	if err != nil {
-		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to create todo")
+		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to create todo.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to create todo",
 		})
 	}
 
-	h.logger.Info().Str("todo_id", createdTodo.ID).Str("user_id", userID).Msg("Todo created successfully")
+	h.logger.Info().Str("todo_id", createdTodo.ID).Str("user_id", userID).Msg("Todo created successfully.")
 	return c.Status(fiber.StatusCreated).JSON(createdTodo)
 }
 
@@ -139,18 +139,29 @@ func (h *TodoHandler) GetTodos(c *fiber.Ctx) error {
 		})
 	}
 
-	// Parse query parameters
-	limit, _ := strconv.Atoi(c.Query("limit", "10"))
-	offset, _ := strconv.Atoi(c.Query("offset", "0"))
-	status := c.Query("status")
-	priority := c.Query("priority")
+	// Parse and validate query parameters
+	var queryParams models.GetTodosQueryParams
 
-	// Validate limit and offset
-	if limit <= 0 || limit > 100 {
-		limit = 10
+	// Parse query parameters using Fiber's QueryParser
+	if err := c.QueryParser(&queryParams); err != nil {
+		h.logger.Error().Err(err).Msg("Failed to parse query parameters.")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "Bad Request",
+			"message": "Invalid query parameters format",
+		})
 	}
-	if offset < 0 {
-		offset = 0
+
+	// Set defaults for unprovided parameters
+	queryParams.SetDefaults()
+
+	// Validate query parameters
+	if err := h.validator.Struct(&queryParams); err != nil {
+		h.logger.Error().Err(err).Msg("Get todos query parameters validation failed.")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "Validation Error",
+			"message": "Invalid query parameters",
+			"details": err.Error(),
+		})
 	}
 
 	var todos []*models.Todo
@@ -158,16 +169,16 @@ func (h *TodoHandler) GetTodos(c *fiber.Ctx) error {
 	var err error
 
 	// Filter by status or priority if provided
-	if status != "" && models.IsValidStatus(status) {
-		todos, total, err = h.todoRepo.GetByStatus(c.Context(), userID, status, limit, offset)
-	} else if priority != "" && models.IsValidPriority(priority) {
-		todos, total, err = h.todoRepo.GetByPriority(c.Context(), userID, priority, limit, offset)
+	if queryParams.Status != "" {
+		todos, total, err = h.todoRepo.GetByStatus(c.Context(), userID, queryParams.Status, queryParams.Limit, queryParams.Offset)
+	} else if queryParams.Priority != "" {
+		todos, total, err = h.todoRepo.GetByPriority(c.Context(), userID, queryParams.Priority, queryParams.Limit, queryParams.Offset)
 	} else {
-		todos, total, err = h.todoRepo.GetByUserID(c.Context(), userID, limit, offset)
+		todos, total, err = h.todoRepo.GetByUserID(c.Context(), userID, queryParams.Limit, queryParams.Offset)
 	}
 
 	if err != nil {
-		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get todos")
+		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get todos.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to get todos",
@@ -177,8 +188,8 @@ func (h *TodoHandler) GetTodos(c *fiber.Ctx) error {
 	response := &models.TodoListResponse{
 		Todos:  todos,
 		Total:  total,
-		Limit:  limit,
-		Offset: offset,
+		Limit:  queryParams.Limit,
+		Offset: queryParams.Offset,
 	}
 
 	return c.JSON(response)
@@ -225,7 +236,7 @@ func (h *TodoHandler) GetTodo(c *fiber.Ctx) error {
 				"message": "Todo not found",
 			})
 		}
-		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to get todo")
+		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to get todo.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to get todo",
@@ -281,7 +292,7 @@ func (h *TodoHandler) UpdateTodo(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Failed to parse update todo request")
+		h.logger.Error().Err(err).Msg("Failed to parse update todo request.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Bad Request",
 			"message": "Invalid request body",
@@ -290,7 +301,7 @@ func (h *TodoHandler) UpdateTodo(c *fiber.Ctx) error {
 
 	// Validate request
 	if err := h.validator.Struct(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Update todo request validation failed")
+		h.logger.Error().Err(err).Msg("Update todo request validation failed.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Validation Error",
 			"message": "Invalid input data",
@@ -307,7 +318,7 @@ func (h *TodoHandler) UpdateTodo(c *fiber.Ctx) error {
 				"message": "Todo not found",
 			})
 		}
-		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to get todo for update")
+		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to get todo for update.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to get todo",
@@ -342,14 +353,14 @@ func (h *TodoHandler) UpdateTodo(c *fiber.Ctx) error {
 	// Update todo
 	updatedTodo, err := h.todoRepo.Update(c.Context(), existingTodo)
 	if err != nil {
-		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to update todo")
+		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to update todo.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to update todo",
 		})
 	}
 
-	h.logger.Info().Str("todo_id", todoID).Str("user_id", userID).Msg("Todo updated successfully")
+	h.logger.Info().Str("todo_id", todoID).Str("user_id", userID).Msg("Todo updated successfully.")
 	return c.JSON(updatedTodo)
 }
 
@@ -393,7 +404,7 @@ func (h *TodoHandler) DeleteTodo(c *fiber.Ctx) error {
 				"message": "Todo not found",
 			})
 		}
-		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to get todo for deletion")
+		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to get todo for deletion.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to get todo",
@@ -410,14 +421,14 @@ func (h *TodoHandler) DeleteTodo(c *fiber.Ctx) error {
 
 	// Delete todo
 	if err := h.todoRepo.Delete(c.Context(), todoID); err != nil {
-		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to delete todo")
+		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to delete todo.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to delete todo",
 		})
 	}
 
-	h.logger.Info().Str("todo_id", todoID).Str("user_id", userID).Msg("Todo deleted successfully")
+	h.logger.Info().Str("todo_id", todoID).Str("user_id", userID).Msg("Todo deleted successfully.")
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
@@ -459,7 +470,7 @@ func (h *TodoHandler) UpdateTodoStatus(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Failed to parse update status request")
+		h.logger.Error().Err(err).Msg("Failed to parse update status request.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Bad Request",
 			"message": "Invalid request body",
@@ -468,7 +479,7 @@ func (h *TodoHandler) UpdateTodoStatus(c *fiber.Ctx) error {
 
 	// Validate request
 	if err := h.validator.Struct(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Update status request validation failed")
+		h.logger.Error().Err(err).Msg("Update status request validation failed.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Validation Error",
 			"message": "Invalid input data",
@@ -485,7 +496,7 @@ func (h *TodoHandler) UpdateTodoStatus(c *fiber.Ctx) error {
 				"message": "Todo not found",
 			})
 		}
-		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to get todo for status update")
+		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to get todo for status update.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to get todo",
@@ -502,14 +513,14 @@ func (h *TodoHandler) UpdateTodoStatus(c *fiber.Ctx) error {
 
 	// Update status
 	if err := h.todoRepo.UpdateStatus(c.Context(), todoID, req.Status); err != nil {
-		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to update todo status")
+		h.logger.Error().Err(err).Str("todo_id", todoID).Msg("Failed to update todo status.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to update todo status",
 		})
 	}
 
-	h.logger.Info().Str("todo_id", todoID).Str("status", req.Status).Str("user_id", userID).Msg("Todo status updated successfully")
+	h.logger.Info().Str("todo_id", todoID).Str("status", req.Status).Str("user_id", userID).Msg("Todo status updated successfully.")
 	return c.JSON(fiber.Map{
 		"message": "Todo status updated successfully",
 		"status":  req.Status,
@@ -539,22 +550,35 @@ func (h *TodoHandler) GetOverdueTodos(c *fiber.Ctx) error {
 		})
 	}
 
-	// Parse query parameters
-	limit, _ := strconv.Atoi(c.Query("limit", "10"))
-	offset, _ := strconv.Atoi(c.Query("offset", "0"))
+	// Parse and validate query parameters
+	var queryParams models.PaginationQueryParams
 
-	// Validate limit and offset
-	if limit <= 0 || limit > 100 {
-		limit = 10
+	// Parse query parameters using Fiber's QueryParser
+	if err := c.QueryParser(&queryParams); err != nil {
+		h.logger.Error().Err(err).Msg("Failed to parse query parameters.")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "Bad Request",
+			"message": "Invalid query parameters format",
+		})
 	}
-	if offset < 0 {
-		offset = 0
+
+	// Set defaults for unprovided parameters
+	queryParams.SetDefaults()
+
+	// Validate query parameters
+	if err := h.validator.Struct(&queryParams); err != nil {
+		h.logger.Error().Err(err).Msg("Get overdue todos query parameters validation failed.")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "Validation Error",
+			"message": "Invalid query parameters",
+			"details": err.Error(),
+		})
 	}
 
 	// Get overdue todos
-	todos, total, err := h.todoRepo.GetOverdue(c.Context(), userID, limit, offset)
+	todos, total, err := h.todoRepo.GetOverdue(c.Context(), userID, queryParams.Limit, queryParams.Offset)
 	if err != nil {
-		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get overdue todos")
+		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get overdue todos.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to get overdue todos",
@@ -564,8 +588,8 @@ func (h *TodoHandler) GetOverdueTodos(c *fiber.Ctx) error {
 	response := &models.TodoListResponse{
 		Todos:  todos,
 		Total:  total,
-		Limit:  limit,
-		Offset: offset,
+		Limit:  queryParams.Limit,
+		Offset: queryParams.Offset,
 	}
 
 	return c.JSON(response)
@@ -595,31 +619,35 @@ func (h *TodoHandler) SearchTodos(c *fiber.Ctx) error {
 		})
 	}
 
-	// Get search query
-	query := c.Query("q")
-	if query == "" {
+	// Parse and validate query parameters
+	var queryParams models.SearchTodosQueryParams
+
+	// Parse query parameters using Fiber's QueryParser
+	if err := c.QueryParser(&queryParams); err != nil {
+		h.logger.Error().Err(err).Msg("Failed to parse query parameters.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Bad Request",
-			"message": "Search query is required",
+			"message": "Invalid query parameters format",
 		})
 	}
 
-	// Parse query parameters
-	limit, _ := strconv.Atoi(c.Query("limit", "10"))
-	offset, _ := strconv.Atoi(c.Query("offset", "0"))
+	// Set defaults for unprovided parameters
+	queryParams.SetDefaults()
 
-	// Validate limit and offset
-	if limit <= 0 || limit > 100 {
-		limit = 10
-	}
-	if offset < 0 {
-		offset = 0
+	// Validate query parameters
+	if err := h.validator.Struct(&queryParams); err != nil {
+		h.logger.Error().Err(err).Msg("Search todos query parameters validation failed.")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   "Validation Error",
+			"message": "Invalid query parameters",
+			"details": err.Error(),
+		})
 	}
 
 	// Search todos
-	todos, total, err := h.todoRepo.Search(c.Context(), userID, query, limit, offset)
+	todos, total, err := h.todoRepo.Search(c.Context(), userID, queryParams.Query, queryParams.Limit, queryParams.Offset)
 	if err != nil {
-		h.logger.Error().Err(err).Str("user_id", userID).Str("query", query).Msg("Failed to search todos")
+		h.logger.Error().Err(err).Str("user_id", userID).Str("query", queryParams.Query).Msg("Failed to search todos.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to search todos",
@@ -629,8 +657,8 @@ func (h *TodoHandler) SearchTodos(c *fiber.Ctx) error {
 	response := &models.TodoListResponse{
 		Todos:  todos,
 		Total:  total,
-		Limit:  limit,
-		Offset: offset,
+		Limit:  queryParams.Limit,
+		Offset: queryParams.Offset,
 	}
 
 	return c.JSON(response)
@@ -659,7 +687,7 @@ func (h *TodoHandler) GetTodoStats(c *fiber.Ctx) error {
 	// Get todo statistics
 	stats, err := h.todoRepo.CountByStatus(c.Context(), userID)
 	if err != nil {
-		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get todo statistics")
+		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get todo statistics.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to get todo statistics",

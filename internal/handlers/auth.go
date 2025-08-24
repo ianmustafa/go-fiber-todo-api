@@ -58,7 +58,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Failed to parse registration request")
+		h.logger.Error().Err(err).Msg("Failed to parse registration request.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Bad Request",
 			"message": "Invalid request body",
@@ -67,7 +67,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 
 	// Validate request
 	if err := h.validator.Struct(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Registration request validation failed")
+		h.logger.Error().Err(err).Msg("Registration request validation failed.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Validation Error",
 			"message": "Invalid input data",
@@ -84,14 +84,14 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 				"message": err.Error(),
 			})
 		}
-		h.logger.Error().Err(err).Msg("Failed to register user")
+		h.logger.Error().Err(err).Msg("Failed to register user.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to register user",
 		})
 	}
 
-	h.logger.Info().Str("username", req.Username).Msg("User registered successfully")
+	h.logger.Info().Str("username", req.Username).Msg("User registered successfully.")
 	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
@@ -112,7 +112,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Failed to parse login request")
+		h.logger.Error().Err(err).Msg("Failed to parse login request.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Bad Request",
 			"message": "Invalid request body",
@@ -121,7 +121,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	// Validate request
 	if err := h.validator.Struct(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Login request validation failed")
+		h.logger.Error().Err(err).Msg("Login request validation failed.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Validation Error",
 			"message": "Invalid input data",
@@ -138,14 +138,14 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 				"message": "Invalid credentials",
 			})
 		}
-		h.logger.Error().Err(err).Msg("Failed to login user")
+		h.logger.Error().Err(err).Msg("Failed to login user.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to login user",
 		})
 	}
 
-	h.logger.Info().Str("username", req.Username).Msg("User logged in successfully")
+	h.logger.Info().Str("username", req.Username).Msg("User logged in successfully.")
 	return c.JSON(response)
 }
 
@@ -166,7 +166,7 @@ func (h *AuthHandler) LoginByEmail(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Failed to parse login by email request")
+		h.logger.Error().Err(err).Msg("Failed to parse login by email request.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Bad Request",
 			"message": "Invalid request body",
@@ -175,7 +175,7 @@ func (h *AuthHandler) LoginByEmail(c *fiber.Ctx) error {
 
 	// Validate request
 	if err := h.validator.Struct(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Login by email request validation failed")
+		h.logger.Error().Err(err).Msg("Login by email request validation failed.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Validation Error",
 			"message": "Invalid input data",
@@ -192,14 +192,14 @@ func (h *AuthHandler) LoginByEmail(c *fiber.Ctx) error {
 				"message": "Invalid credentials",
 			})
 		}
-		h.logger.Error().Err(err).Msg("Failed to login user by email")
+		h.logger.Error().Err(err).Msg("Failed to login user by email.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to login user",
 		})
 	}
 
-	h.logger.Info().Str("email", req.Email).Msg("User logged in by email successfully")
+	h.logger.Info().Str("email", req.Email).Msg("User logged in by email successfully.")
 	return c.JSON(response)
 }
 
@@ -220,7 +220,7 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 
 	// Parse request body
 	if err := c.BodyParser(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Failed to parse refresh token request")
+		h.logger.Error().Err(err).Msg("Failed to parse refresh token request.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Bad Request",
 			"message": "Invalid request body",
@@ -229,7 +229,7 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 
 	// Validate request
 	if err := h.validator.Struct(&req); err != nil {
-		h.logger.Error().Err(err).Msg("Refresh token request validation failed")
+		h.logger.Error().Err(err).Msg("Refresh token request validation failed.")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   "Validation Error",
 			"message": "Invalid input data",
@@ -246,14 +246,14 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 				"message": err.Error(),
 			})
 		}
-		h.logger.Error().Err(err).Msg("Failed to refresh token")
+		h.logger.Error().Err(err).Msg("Failed to refresh token.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to refresh token",
 		})
 	}
 
-	h.logger.Info().Msg("Token refreshed successfully")
+	h.logger.Info().Msg("Token refreshed successfully.")
 	return c.JSON(response)
 }
 
@@ -280,14 +280,14 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 	// Logout user
 	response, err := h.authService.Logout(c.Context(), &req)
 	if err != nil {
-		h.logger.Error().Err(err).Msg("Failed to logout user")
+		h.logger.Error().Err(err).Msg("Failed to logout user.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to logout user",
 		})
 	}
 
-	h.logger.Info().Msg("User logged out successfully")
+	h.logger.Info().Msg("User logged out successfully.")
 	return c.JSON(response)
 }
 
@@ -314,7 +314,7 @@ func (h *AuthHandler) Me(c *fiber.Ctx) error {
 	// Get user information
 	response, err := h.authService.GetAuthenticatedUser(c.Context(), userID)
 	if err != nil {
-		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get authenticated user")
+		h.logger.Error().Err(err).Str("user_id", userID).Msg("Failed to get authenticated user.")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   "Internal Server Error",
 			"message": "Failed to get user information",

@@ -31,5 +31,5 @@ func (s *Server) setupRoutes() {
 	// Todo routes
 	s.todoHandler.RegisterRoutes(api, authMiddleware)
 
-	s.logger.Info().Msg("Routes setup completed")
+	s.logger.Info().Msg("Routes setup completed.")
 }

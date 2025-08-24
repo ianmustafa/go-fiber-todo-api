@@ -83,7 +83,7 @@ func (h *HealthHandler) HealthCheck(c *fiber.Ctx) error {
 				Error:        err.Error(),
 			}
 			response.Status = "degraded"
-			h.logger.Error().Err(err).Msg("PostgreSQL health check failed")
+			h.logger.Error().Err(err).Msg("PostgreSQL health check failed.")
 		} else {
 			response.Services["postgresql"] = ServiceInfo{
 				Status:       "healthy",
@@ -108,7 +108,7 @@ func (h *HealthHandler) HealthCheck(c *fiber.Ctx) error {
 				Error:        err.Error(),
 			}
 			response.Status = "degraded"
-			h.logger.Error().Err(err).Msg("MongoDB health check failed")
+			h.logger.Error().Err(err).Msg("MongoDB health check failed.")
 		} else {
 			response.Services["mongodb"] = ServiceInfo{
 				Status:       "healthy",
@@ -133,7 +133,7 @@ func (h *HealthHandler) HealthCheck(c *fiber.Ctx) error {
 				Error:        err.Error(),
 			}
 			response.Status = "degraded"
-			h.logger.Error().Err(err).Msg("Redis health check failed")
+			h.logger.Error().Err(err).Msg("Redis health check failed.")
 		} else {
 			response.Services["redis"] = ServiceInfo{
 				Status:       "healthy",

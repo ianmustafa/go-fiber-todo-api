@@ -452,13 +452,13 @@ func (s *AuthService) Login(ctx context.Context, req *models.LoginRequest) (*mod
     // Get user by username
     user, err := s.userRepo.GetByUsername(ctx, req.Username)
     if err != nil {
-        s.logger.Error().Err(err).Str("username", req.Username).Msg("User not found")
+        s.logger.Error().Err(err).Str("username", req.Username).Msg("User not found.")
         return nil, fmt.Errorf("invalid credentials")
     }
 
     // Verify password
     if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-        s.logger.Error().Err(err).Str("username", req.Username).Msg("Invalid password")
+        s.logger.Error().Err(err).Str("username", req.Username).Msg("Invalid password.")
         return nil, fmt.Errorf("invalid credentials")
     }
 
@@ -519,17 +519,17 @@ func (s *RedisSessionStore) Set(ctx context.Context, sessionID string, session *
     // Serialize session to JSON
     data, err := json.Marshal(session)
     if err != nil {
-        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to marshal session")
+        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to marshal session.")
         return fmt.Errorf("failed to marshal session: %w", err)
     }
 
     // Store in Redis with expiration
     if err := s.client.Set(ctx, key, data, expiration).Err(); err != nil {
-        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to store session in Redis")
+        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to store session in Redis.")
         return fmt.Errorf("failed to store session: %w", err)
     }
 
-    s.logger.Debug().Str("session_id", sessionID).Dur("expiration", expiration).Msg("Session stored successfully")
+    s.logger.Debug().Str("session_id", sessionID).Dur("expiration", expiration).Msg("Session stored successfully.")
     return nil
 }
 
@@ -543,18 +543,18 @@ func (s *RedisSessionStore) Get(ctx context.Context, sessionID string) (*models.
         if err == redis.Nil {
             return nil, fmt.Errorf("session not found")
         }
-        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to get session from Redis")
+        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to get session from Redis.")
         return nil, fmt.Errorf("failed to get session: %w", err)
     }
 
     // Deserialize session from JSON
     var session models.Session
     if err := json.Unmarshal([]byte(data), &session); err != nil {
-        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to unmarshal session")
+        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to unmarshal session.")
         return nil, fmt.Errorf("failed to unmarshal session: %w", err)
     }
 
-    s.logger.Debug().Str("session_id", sessionID).Msg("Session retrieved successfully")
+    s.logger.Debug().Str("session_id", sessionID).Msg("Session retrieved successfully.")
     return &session, nil
 }
 
@@ -565,16 +565,16 @@ func (s *RedisSessionStore) Delete(ctx context.Context, sessionID string) error 
     // Delete from Redis
     result, err := s.client.Del(ctx, key).Result()
     if err != nil {
-        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to delete session from Redis")
+        s.logger.Error().Err(err).Str("session_id", sessionID).Msg("Failed to delete session from Redis.")
         return fmt.Errorf("failed to delete session: %w", err)
     }
 
     if result == 0 {
-        s.logger.Warn().Str("session_id", sessionID).Msg("Session not found for deletion")
+        s.logger.Warn().Str("session_id", sessionID).Msg("Session not found for deletion.")
         return fmt.Errorf("session not found")
     }
 
-    s.logger.Debug().Str("session_id", sessionID).Msg("Session deleted successfully")
+    s.logger.Debug().Str("session_id", sessionID).Msg("Session deleted successfully.")
     return nil
 }
 
@@ -702,7 +702,7 @@ func (h *TodoHandler) CreateTodo(c *fiber.Ctx) error {
     
     todo, err := h.todoSvc.CreateTodo(c.Context(), userID, &req)
     if err != nil {
-        h.logger.Error().Err(err).Msg("Failed to create todo")
+        h.logger.Error().Err(err).Msg("Failed to create todo.")
         return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
             Error: "Failed to create todo",
         })
@@ -731,7 +731,7 @@ func (h *TodoHandler) GetTodos(c *fiber.Ctx) error {
     
     todos, total, err := h.todoSvc.GetUserTodos(c.Context(), userID, limit, offset, status)
     if err != nil {
-        h.logger.Error().Err(err).Msg("Failed to get todos")
+        h.logger.Error().Err(err).Msg("Failed to get todos.")
         return c.Status(fiber.StatusInternalServerError).JSON(utils.ErrorResponse{
             Error: "Failed to get todos",
         })

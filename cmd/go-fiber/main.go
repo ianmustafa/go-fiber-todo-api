@@ -48,7 +48,7 @@ func main() {
 	// Create and start server
 	srv := server.New(cfg, logger)
 	if err := srv.Start(); err != nil {
-		logger.Fatal().Err(err).Msg("Failed to start server")
+		logger.Fatal().Err(err).Msg("Failed to start server.")
 	}
 }
 
@@ -73,7 +73,7 @@ func setupLogger(cfg *config.Config) zerolog.Logger {
 
 	// Configure output format
 	var logger zerolog.Logger
-	if cfg.IsDevelopment() && cfg.Log.Format != "json" {
+	if cfg.IsNotProduction() && cfg.Log.Format != "json" {
 		// Pretty console output for development
 		logger = zerolog.New(zerolog.ConsoleWriter{
 			Out:        os.Stdout,

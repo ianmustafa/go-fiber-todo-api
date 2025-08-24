@@ -15,7 +15,7 @@ func AuthMiddleware(authService *services.AuthService, logger zerolog.Logger) fi
 		// Get Authorization header
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
-			logger.Warn().Str("path", c.Path()).Msg("Missing Authorization header")
+			logger.Warn().Str("path", c.Path()).Msg("Missing Authorization header.")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error":   "Unauthorized",
 				"message": "Missing authorization header",
@@ -24,7 +24,7 @@ func AuthMiddleware(authService *services.AuthService, logger zerolog.Logger) fi
 
 		// Check if header starts with "Bearer "
 		if !strings.HasPrefix(authHeader, "Bearer ") {
-			logger.Warn().Str("path", c.Path()).Msg("Invalid Authorization header format")
+			logger.Warn().Str("path", c.Path()).Msg("Invalid Authorization header format.")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error":   "Unauthorized",
 				"message": "Invalid authorization header format",
@@ -34,7 +34,7 @@ func AuthMiddleware(authService *services.AuthService, logger zerolog.Logger) fi
 		// Extract token
 		token := strings.TrimPrefix(authHeader, "Bearer ")
 		if token == "" {
-			logger.Warn().Str("path", c.Path()).Msg("Empty token")
+			logger.Warn().Str("path", c.Path()).Msg("Empty token.")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error":   "Unauthorized",
 				"message": "Empty token",
@@ -44,7 +44,7 @@ func AuthMiddleware(authService *services.AuthService, logger zerolog.Logger) fi
 		// Validate token
 		claims, err := authService.ValidateAccessToken(token)
 		if err != nil {
-			logger.Warn().Err(err).Str("path", c.Path()).Msg("Invalid token")
+			logger.Warn().Err(err).Str("path", c.Path()).Msg("Invalid token.")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error":   "Unauthorized",
 				"message": "Invalid token",
@@ -94,7 +94,7 @@ func OptionalAuthMiddleware(authService *services.AuthService, logger zerolog.Lo
 		claims, err := authService.ValidateAccessToken(token)
 		if err != nil {
 			// Invalid token, continue without authentication
-			logger.Debug().Err(err).Str("path", c.Path()).Msg("Invalid optional token")
+			logger.Debug().Err(err).Str("path", c.Path()).Msg("Invalid optional token.")
 			return c.Next()
 		}
 
