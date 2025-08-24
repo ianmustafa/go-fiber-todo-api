@@ -43,7 +43,7 @@ func main() {
 	logger.Info().
 		Str("environment", cfg.Server.Environment).
 		Str("version", "1.0.0").
-		Msg("Starting Go Fiber application")
+		Msg("Starting Go Fiber application.")
 
 	// Create and start server
 	srv := server.New(cfg, logger)

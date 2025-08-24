@@ -50,7 +50,7 @@ func NewConnection(config Config, logger zerolog.Logger) (*Connection, error) {
 
 	logger.Info().
 		Str("database", config.Database).
-		Msg("Successfully connected to MongoDB")
+		Msg("Successfully connected to MongoDB.")
 
 	return &Connection{
 		Client:   client,

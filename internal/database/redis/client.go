@@ -65,7 +65,7 @@ func NewClient(cfg *config.RedisConfig, logger zerolog.Logger) (*Client, error) 
 	logger.Info().
 		Str("addr", options.Addr).
 		Int("db", options.DB).
-		Msg("Successfully connected to Redis")
+		Msg("Successfully connected to Redis.")
 
 	return redisClient, nil
 }

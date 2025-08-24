@@ -36,7 +36,7 @@ func RequestLogger(logger zerolog.Logger) fiber.Handler {
 			Dur("duration", duration).
 			Int("size", len(c.Response().Body())).
 			Str("request_id", c.Get("X-Request-ID")).
-			Msg("HTTP Request")
+			Msg("HTTP Request.")
 
 		return err
 	}

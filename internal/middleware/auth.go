@@ -60,7 +60,7 @@ func AuthMiddleware(authService *services.AuthService, logger zerolog.Logger) fi
 			Str("user_id", claims.UserID).
 			Str("username", claims.Username).
 			Str("path", c.Path()).
-			Msg("User authenticated successfully")
+			Msg("User authenticated successfully.")
 
 		return c.Next()
 	}
@@ -107,7 +107,7 @@ func OptionalAuthMiddleware(authService *services.AuthService, logger zerolog.Lo
 			Str("user_id", claims.UserID).
 			Str("username", claims.Username).
 			Str("path", c.Path()).
-			Msg("User authenticated via optional middleware")
+			Msg("User authenticated via optional middleware.")
 
 		return c.Next()
 	}

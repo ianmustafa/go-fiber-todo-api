@@ -82,7 +82,7 @@ func (s *Server) Start() error {
 		s.logger.Info().
 			Str("address", address).
 			Str("environment", s.config.Server.Environment).
-			Msg("Starting server")
+			Msg("Starting server.")
 
 		if err := s.app.Listen(address); err != nil {
 			s.logger.Fatal().Err(err).Msg("Failed to start server.")
@@ -94,7 +94,7 @@ func (s *Server) Start() error {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	s.logger.Info().Msg("Shutting down server....")
+	s.logger.Info().Msg("Shutting down server...")
 
 	// Graceful shutdown with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

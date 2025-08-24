@@ -28,7 +28,7 @@ func (s *Server) customErrorHandler() fiber.ErrorHandler {
 			Str("method", c.Method()).
 			Str("path", c.Path()).
 			Str("ip", c.IP()).
-			Msg("Request error")
+			Msg("Request error.")
 
 		return c.Status(code).JSON(fiber.Map{
 			"error":   "Internal Server Error",

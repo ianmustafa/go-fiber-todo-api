@@ -60,7 +60,7 @@ func New(cfg *config.DatabaseConfig, logger zerolog.Logger) (*DB, error) {
 		Str("driver", "postgres").
 		Int("max_open_conns", cfg.MaxOpenConns).
 		Int("max_idle_conns", cfg.MaxIdleConns).
-		Msg("PostgreSQL connection established")
+		Msg("PostgreSQL connection established.")
 
 	return db, nil
 }
